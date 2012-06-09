@@ -42,7 +42,7 @@ var get = Ember.get,
   given object and key.
 */
 function uniqDeps(obj, depKey) {
-  var m = meta(obj), deps = m.deps, ret;
+  var m = INLINE_META(obj), deps = m.deps, ret;
 
   // If the current object has no dependencies...
   if (!deps) {
@@ -148,7 +148,7 @@ function mkCpGetter(keyName, desc) {
 
   if (cacheable) {
     return function() {
-      var ret, cache = meta(this).cache;
+      var ret, cache = INLINE_META(this).cache;
       if (keyName in cache) { return cache[keyName]; }
       ret = cache[keyName] = func.call(this, keyName);
       return ret;
@@ -166,7 +166,7 @@ function mkCpSetter(keyName, desc) {
       func      = desc.func;
 
   return function(value) {
-    var m = meta(this, cacheable),
+    var m = cacheable ? INLINE_META(this) : INLINE_META_GET(this),
         watched = m.source === this && m.watching[keyName] > 0,
         oldSuspended = desc._suspended,
         ret;
@@ -300,7 +300,7 @@ ComputedPropertyPrototype.teardown = function(obj, keyName) {
     removeDependentKey(obj, keyName, keys[idx]);
   }
 
-  if (this._cacheable) { delete meta(obj).cache[keyName]; }
+  if (this._cacheable) { delete INLINE_META(obj).cache[keyName]; }
 
   return null; // no value to restore
 };
@@ -308,7 +308,7 @@ ComputedPropertyPrototype.teardown = function(obj, keyName) {
 /** @private - impl descriptor API */
 ComputedPropertyPrototype.didChange = function(obj, keyName) {
   if (this._cacheable && this._suspended !== obj) {
-    delete meta(obj).cache[keyName];
+    delete INLINE_META(obj).cache[keyName];
   }
 };
 
@@ -317,7 +317,7 @@ ComputedPropertyPrototype.get = function(obj, keyName) {
   var ret, cache;
 
   if (this._cacheable) {
-    cache = meta(obj).cache;
+    cache = INLINE_META(obj).cache;
     if (keyName in cache) { return cache[keyName]; }
     ret = cache[keyName] = this.func.call(obj, keyName);
   } else {
@@ -329,7 +329,7 @@ ComputedPropertyPrototype.get = function(obj, keyName) {
 /** @private - impl descriptor API */
 ComputedPropertyPrototype.set = function(obj, keyName, value) {
   var cacheable = this._cacheable,
-      m = meta(obj, cacheable),
+      m = cacheable ? INLINE_META(obj) : INLINE_META_GET(obj),
       watched = m.source === obj && m.watching[keyName] > 0,
       oldSuspended = this._suspended,
       ret;
@@ -346,7 +346,7 @@ ComputedPropertyPrototype.set = function(obj, keyName, value) {
 };
 
 ComputedPropertyPrototype.val = function(obj, keyName) {
-  return meta(obj, false).values[keyName];
+  return INLINE_META_GET(obj).values[keyName];
 };
 
 if (!Ember.platform.hasPropertyAccessors) {
@@ -407,7 +407,7 @@ Ember.computed = function(func) {
 
 */
 Ember.cacheFor = function(obj, key) {
-  var cache = meta(obj, false).cache;
+  var cache = INLINE_META_GET(obj).cache;
 
   if (cache && key in cache) {
     return cache[key];

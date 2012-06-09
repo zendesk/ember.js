@@ -55,7 +55,7 @@ var basicSet = function set(obj, keyName, value) {
 get = function(obj, keyName) {
   Ember.assert("You need to provide an object and key to `get`.", !!obj && keyName);
 
-  var desc = meta(obj, false).descs[keyName];
+  var desc = INLINE_META_GET(obj).descs[keyName];
   if (desc) { return desc.get(obj, keyName); }
   else { return basicGet(obj, keyName); }
 };
@@ -64,7 +64,7 @@ get = function(obj, keyName) {
 set = function(obj, keyName, value) {
   Ember.assert("You need to provide an object and key to `set`.", !!obj && keyName !== undefined);
 
-  var desc = meta(obj, false).descs[keyName];
+  var desc = INLINE_META_GET(obj).descs[keyName];
   if (desc) { desc.set(obj, keyName, value); }
   else { basicSet(obj, keyName, value); }
   return value;

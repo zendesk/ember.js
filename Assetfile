@@ -37,6 +37,22 @@ class EmberProductionFilter < Rake::Pipeline::Filter
   end
 end
 
+class EmberPreprocessor < Rake::Pipeline::Filter
+  def preprocess(data)
+    data.gsub!(%r{INLINE_META\((.*?)\)}, '(\1.hasOwnProperty(Ember.META_KEY) ? \1[Ember.META_KEY] : Ember.meta(\1))')
+    data.gsub!(%r{INLINE_META_GET\((.*?)\)}, '(\1[Ember.META_KEY] || Ember.EMPTY_META)')
+  end
+
+  def generate_output(inputs, output)
+    inputs.each do |input|
+      result = File.read(input.fullpath)
+      puts input.fullpath
+      preprocess(result)
+      output.write result
+    end
+  end
+end
+
 class EmberLicenseFilter < Rake::Pipeline::Filter
   def license
     @license ||= File.read("generators/license.js")
@@ -92,6 +108,8 @@ end
 
 input "packages" do
   match "*/lib/**/*.js" do
+    filter EmberPreprocessor
+
     minispade :rewrite_requires => true, :string => true, :module_id_generator => proc { |input|
       id = input.path.dup
       id.sub!('/lib/', '/')
@@ -133,6 +151,7 @@ distros.each do |name, modules|
 
     # Add debug to the main distro
     match "{#{name}.js,ember-debug.js}" do
+      filter EmberPreprocessor
       concat ["ember-debug.js"], "#{name}.js"
     end
 

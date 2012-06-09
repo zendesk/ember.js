@@ -25,8 +25,8 @@ var Mixin, REQUIRED, Alias,
     guidFor = Ember.guidFor;
 
 /** @private */
-function meta(obj, writable) {
-  var m = Ember.meta(obj, writable!==false), ret = m.mixins;
+function metaMixin(obj, writable) {
+  var m = (writable !== false ? INLINE_META(obj) : INLINE_META_GET(obj)), ret = m.mixins;
   if (writable===false) return ret || EMPTY_META;
 
   if (!ret) {
@@ -136,7 +136,7 @@ function mergeMixins(mixins, m, descs, values, base) {
 
 /** @private */
 function writableReq(obj) {
-  var m = Ember.meta(obj), req = m.required;
+  var m = INLINE_META(obj), req = m.required;
   if (!req || req.__emberproto__ !== obj) {
     req = m.required = req ? o_create(req) : { __ember_count__: 0 };
     req.__emberproto__ = obj;
@@ -173,7 +173,7 @@ function detectBinding(obj, key, m) {
 
 /** @private */
 function connectBindings(obj, m) {
-  var bindings = (m || Ember.meta(obj)).bindings, key, binding;
+  var bindings = (m || INLINE_META(obj)).bindings, key, binding;
   if (bindings) {
     for (key in bindings) {
       binding = key !== '__emberproto__' && obj[key];
@@ -193,7 +193,7 @@ function connectBindings(obj, m) {
 
 /** @private */
 function applyMixin(obj, mixins, partial) {
-  var descs = {}, values = {}, m = Ember.meta(obj), req = m.required,
+  var descs = {}, values = {}, m = INLINE_META(obj), req = m.required,
       key, willApply, didApply, value, desc;
 
   // Go through all mixins and hashes passed in, and:
@@ -202,7 +202,7 @@ function applyMixin(obj, mixins, partial) {
   // * Set up _super wrapping if necessary
   // * Set up descriptors (simple, watched or computed properties)
   // * Copying `toString` in broken browsers
-  mergeMixins(mixins, meta(obj), descs, values, obj);
+  mergeMixins(mixins, metaMixin(obj), descs, values, obj);
 
   if (Ember.MixinDelegate.detect(obj)) {
     willApply = values.willApplyProperty || obj.willApplyProperty;
@@ -426,7 +426,7 @@ function _detect(curMixin, targetMixin, seen) {
 MixinPrototype.detect = function(obj) {
   if (!obj) { return false; }
   if (obj instanceof Mixin) { return _detect(obj, this, {}); }
-  return !!meta(obj, false)[guidFor(this)];
+  return !!metaMixin(obj, false)[guidFor(this)];
 };
 
 MixinPrototype.without = function() {
@@ -564,7 +564,7 @@ MixinPrototype.toString = classToString;
 // returns the mixins currently applied to the specified object
 // TODO: Make Ember.mixin
 Mixin.mixins = function(obj) {
-  var ret = [], mixins = meta(obj, false), key, mixin;
+  var ret = [], mixins = metaMixin(obj, false), key, mixin;
   for(key in mixins) {
     if (META_SKIP[key]) { continue; }
     mixin = mixins[key];

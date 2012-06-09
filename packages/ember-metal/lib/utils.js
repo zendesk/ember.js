@@ -132,7 +132,7 @@ var META_KEY = Ember.GUID_KEY+'_meta';
 Ember.META_KEY = META_KEY;
 
 // Placeholder for non-writable metas.
-var EMPTY_META = {
+var EMPTY_META = Ember.EMPTY_META = {
   descs: {},
   watching: {}
 };
@@ -197,12 +197,12 @@ Ember.meta = function meta(obj, writable) {
 };
 
 Ember.getMeta = function getMeta(obj, property) {
-  var meta = Ember.meta(obj, false);
+  var meta = INLINE_META_GET(obj);
   return meta[property];
 };
 
 Ember.setMeta = function setMeta(obj, property, value) {
-  var meta = Ember.meta(obj, true);
+  var meta = INLINE_META(obj);
   meta[property] = value;
   return value;
 };
@@ -238,7 +238,7 @@ Ember.setMeta = function setMeta(obj, property, value) {
     shared with its constructor
 */
 Ember.metaPath = function(obj, path, writable) {
-  var meta = Ember.meta(obj, writable), keyName, value;
+  var meta = (writable ? INLINE_META(obj) : INLINE_META_GET(obj)), keyName, value;
 
   for (var i=0, l=path.length; i<l; i++) {
     keyName = path[i];

@@ -92,7 +92,7 @@ function dependentKeysDidChange(obj, depKey, meta) {
 /** @private */
 function addChainWatcher(obj, keyName, node) {
   if (!obj || ('object' !== typeof obj)) return; // nothing to do
-  var m = meta(obj);
+  var m = INLINE_META(obj);
   var nodes = m.chainWatchers;
   if (!nodes || nodes.__emberproto__ !== obj) {
     nodes = m.chainWatchers = { __emberproto__: obj };
@@ -106,7 +106,7 @@ function addChainWatcher(obj, keyName, node) {
 /** @private */
 function removeChainWatcher(obj, keyName, node) {
   if (!obj || 'object' !== typeof obj) { return; } // nothing to do
-  var m = meta(obj, false),
+  var m = INLINE_META_GET(obj),
       nodes = m.chainWatchers;
   if (!nodes || nodes.__emberproto__ !== obj) { return; } //nothing to do
   if (nodes[keyName]) { delete nodes[keyName][guidFor(node)]; }
@@ -132,7 +132,7 @@ function flushPendingChains() {
 
 /** @private */
 function isProto(pvalue) {
-  return meta(pvalue, false).proto === pvalue;
+  return INLINE_META_GET(pvalue).proto === pvalue;
 }
 
 // A ChainNode watches a single key on an object.  If you provide a starting
@@ -368,7 +368,7 @@ ChainNodePrototype.didChange = function(suppressEvent) {
 // the current object.
 /** @private */
 function chainsFor(obj) {
-  var m = meta(obj), ret = m.chains;
+  var m = INLINE_META(obj), ret = m.chains;
   if (!ret) {
     ret = m.chains = new ChainNode(null, null, obj);
   } else if (ret.value() !== obj) {
@@ -425,7 +425,7 @@ Ember.watch = function(obj, keyName) {
   // can't watch length on Array - it is special...
   if (keyName === 'length' && Ember.typeOf(obj) === 'array') { return this; }
 
-  var m = meta(obj), watching = m.watching, desc;
+  var m = INLINE_META(obj), watching = m.watching, desc;
 
   // activate watching first time
   if (!watching[keyName]) {
@@ -449,7 +449,7 @@ Ember.watch = function(obj, keyName) {
 };
 
 Ember.isWatching = function(obj, keyName) {
-  return !!meta(obj).watching[keyName];
+  return !!INLINE_META(obj).watching[keyName];
 };
 
 Ember.watch.flushPending = flushPendingChains;
@@ -459,12 +459,12 @@ Ember.unwatch = function(obj, keyName) {
   // can't watch length on Array - it is special...
   if (keyName === 'length' && Ember.typeOf(obj) === 'array') { return this; }
 
-  var watching = meta(obj).watching, desc, descs;
+  var watching = INLINE_META(obj).watching, desc, descs;
 
   if (watching[keyName] === 1) {
     watching[keyName] = 0;
     if (isKeyName(keyName)) {
-      desc = meta(obj).descs[keyName];
+      desc = INLINE_META(obj).descs[keyName];
       desc = desc ? desc.unwatched : SIMPLE_PROPERTY;
       if (desc) { Ember.defineProperty(obj, keyName, desc); }
 
@@ -490,7 +490,7 @@ Ember.unwatch = function(obj, keyName) {
   safe to call multiple times.
 */
 Ember.rewatch = function(obj) {
-  var m = meta(obj, false), chains = m.chains, bindings = m.bindings, key, b;
+  var m = INLINE_META_GET(obj), chains = m.chains, bindings = m.bindings, key, b;
 
   // make sure the object has its own guid.
   if (GUID_KEY in obj && !obj.hasOwnProperty(GUID_KEY)) {
@@ -527,7 +527,7 @@ Ember.rewatch = function(obj) {
   @returns {void}
 */
 function propertyWillChange(obj, keyName, value) {
-  var m = meta(obj, false),
+  var m = INLINE_META_GET(obj),
       watching = m.watching[keyName] > 0 || keyName === 'length',
       proto = m.proto,
       desc = m.descs[keyName];
@@ -562,7 +562,7 @@ Ember.propertyWillChange = propertyWillChange;
   @returns {void}
 */
 function propertyDidChange(obj, keyName) {
-  var m = meta(obj, false),
+  var m = INLINE_META_GET(obj),
       watching = m.watching[keyName] > 0 || keyName === 'length',
       proto = m.proto,
       desc = m.descs[keyName];

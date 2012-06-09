@@ -49,7 +49,7 @@ function actionSetFor(obj, eventName, target, writable) {
 // target property.
 /** @private */
 function targetSetFor(obj, eventName) {
-  var listenerSet = meta(obj, false).listeners;
+  var listenerSet = INLINE_META_GET(obj).listeners;
   if (!listenerSet) { return false; }
 
   return listenerSet[eventName] || false;
@@ -184,7 +184,7 @@ function suspendListener(obj, eventName, target, method, callback) {
 // returns a list of currently watched events
 /** @memberOf Ember */
 function watchedEvents(obj) {
-  var listeners = meta(obj, false).listeners, ret = [];
+  var listeners = INLINE_META_GET(obj).listeners, ret = [];
 
   if (listeners) {
     for(var eventName in listeners) {

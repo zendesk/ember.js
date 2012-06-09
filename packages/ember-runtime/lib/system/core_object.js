@@ -74,7 +74,7 @@ function makeCtor() {
       wasApplied = true;
       Class.PrototypeMixin.applyPartial(Class.prototype);
       Ember.rewatch(Class.prototype); // setup watch chains if needed.
-      hasChains = !!meta(Class.prototype, false).chains; // avoid rewatch
+      hasChains = !!INLINE_META_GET(Class.prototype).chains; // avoid rewatch
     }
 
     return this.prototype;
@@ -181,7 +181,7 @@ var ClassMixin = Ember.Mixin.create(
     proto = Class.prototype = o_create(this.prototype);
     proto.constructor = Class;
     Ember.generateGuid(proto, 'ember');
-    meta(proto).proto = proto; // this will disable observers on prototype
+    INLINE_META(proto).proto = proto; // this will disable observers on prototype
 
 
     Class.subclasses = Ember.Set ? new Ember.Set() : null;
@@ -245,7 +245,7 @@ var ClassMixin = Ember.Mixin.create(
     This will return the original hash that was passed to `meta()`.
   */
   metaForProperty: function(key) {
-    var desc = meta(this.proto(), false).descs[key];
+    var proto = this.proto(), desc = INLINE_META_GET(proto).descs[key];
 
     Ember.assert("metaForProperty() could not find a computed property with key '"+key+"'.", !!desc && desc instanceof Ember.ComputedProperty);
     return desc._meta || {};
@@ -257,7 +257,7 @@ var ClassMixin = Ember.Mixin.create(
   */
   eachComputedProperty: function(callback, binding) {
     var proto = this.proto(),
-        descs = meta(proto).descs,
+        descs = INLINE_META(proto).descs,
         empty = {},
         property;
 

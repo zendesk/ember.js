@@ -144,7 +144,7 @@ Binding.prototype = /** @scope Ember.Binding.prototype */ {
     if (twoWay) { Ember.addObserver(obj, this._to, this, this.toDidChange); }
 
     // Don't schedule a sync if we're connecting an item on a prototype
-    if (Ember.meta(obj, false).proto !== obj) { this._scheduleSync(obj, 'fwd'); }
+    if (INLINE_META_GET(obj).proto !== obj) { this._scheduleSync(obj, 'fwd'); }
 
     this._readyToSync = true;
     return this;

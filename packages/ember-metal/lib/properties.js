@@ -169,7 +169,7 @@ function get(obj, keyName) {
 var emptyObject = {};
 
 function watchedGet(obj, keyName) {
-  return rawGet(obj, keyName, meta(obj, false).values || emptyObject);
+  return rawGet(obj, keyName, INLINE_META_GET(obj).values || emptyObject);
 }
 
 var hasGetters = Ember.platform.hasPropertyAccessors, rawSet;
@@ -188,7 +188,7 @@ if (!Ember.platform.hasPropertyAccessors) {
 
 /** @private */
 function watchedSet(obj, keyName, value) {
-  var m = meta(obj),
+  var m = INLINE_META(obj),
       values = m.values,
       changed = value !== values[keyName];
 
@@ -232,12 +232,12 @@ WATCHED_PROPERTY.setup = function(obj, keyName, value) {
     get: makeWatchedGetter(keyName)
   });
 
-  meta(obj).values[keyName] = value;
+  INLINE_META(obj).values[keyName] = value;
 };
 
 WATCHED_PROPERTY.teardown = function(obj, keyName) {
-  var ret = meta(obj).values[keyName];
-  delete meta(obj).values[keyName];
+  var ret = INLINE_META(obj).values[keyName];
+  delete INLINE_META(obj).values[keyName];
   return ret;
 };
 
@@ -299,7 +299,7 @@ function hasDesc(descs, keyName) {
       }).property('firstName', 'lastName').cacheable());
 */
 Ember.defineProperty = function(obj, keyName, desc, val) {
-  var m = meta(obj, false),
+  var m = INLINE_META_GET(obj),
       descs = m.descs,
       watching = m.watching[keyName]>0,
       override = true;
@@ -322,7 +322,7 @@ Ember.defineProperty = function(obj, keyName, desc, val) {
   }
 
   if (desc instanceof Ember.Descriptor) {
-    m = meta(obj, true);
+    m = INLINE_META(obj);
     descs = m.descs;
 
     desc = (watching ? desc.watched : desc.unwatched) || desc;
@@ -331,7 +331,7 @@ Ember.defineProperty = function(obj, keyName, desc, val) {
 
   // compatibility with ES5
   } else {
-    if (descs[keyName]) meta(obj).descs[keyName] = null;
+    if (descs[keyName]) INLINE_META(obj).descs[keyName] = null;
     objectDefineProperty(obj, keyName, desc);
   }
 
