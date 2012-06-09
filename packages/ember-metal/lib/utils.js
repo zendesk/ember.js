@@ -164,12 +164,12 @@ var createMeta = Ember.platform.defineProperty.isSimulated ? o_create : (functio
 */
 Ember.meta = function meta(obj, writable) {
 
-  var ret = obj[META_KEY];
+  var ret = obj.__ember_meta__;
   if (writable===false) return ret || EMPTY_META;
 
   if (!ret) {
     o_defineProperty(obj, META_KEY, META_DESC);
-    ret = obj[META_KEY] = createMeta({
+    ret = obj.__ember_meta__ = createMeta({
       descs: {},
       watching: {},
       values: {},
@@ -191,7 +191,7 @@ Ember.meta = function meta(obj, writable) {
     ret.source   = obj;
 
     o_defineProperty(obj, META_KEY, META_DESC);
-    ret = obj[META_KEY] = createMeta(ret);
+    ret = obj.__ember_meta__ = createMeta(ret);
   }
   return ret;
 };
