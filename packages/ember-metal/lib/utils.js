@@ -121,7 +121,7 @@ var META_DESC = {
   value: null
 };
 
-var META_KEY = Ember.GUID_KEY+'_meta';
+var META_KEY = '__ember_meta__';
 
 /**
   The key used to store meta information on object for property observing.

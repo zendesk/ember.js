@@ -39,8 +39,8 @@ end
 
 class EmberPreprocessor < Rake::Pipeline::Filter
   def preprocess(data)
-    data.gsub!(%r{INLINE_META\((.*?)\)}, '(\1.hasOwnProperty(Ember.META_KEY) ? \1[Ember.META_KEY] : Ember.meta(\1))')
-    data.gsub!(%r{INLINE_META_GET\((.*?)\)}, '(\1[Ember.META_KEY] || Ember.EMPTY_META)')
+    data.gsub!(%r{INLINE_META\((.*?)\)}, '(Ember.meta(\1))')
+    data.gsub!(%r{INLINE_META_GET\((.*?)\)}, '(\1.__ember_meta__ || Ember.EMPTY_META)')
   end
 
   def generate_output(inputs, output)
