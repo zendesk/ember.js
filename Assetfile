@@ -157,6 +157,7 @@ distros.each do |name, modules|
 
     # Strip dev code
     match "#{name}.prod.js" do
+      filter EmberPreprocessor
       filter(EmberProductionFilter) { ["#{name}.prod.js", "#{name}.min.js"] }
     end
 
