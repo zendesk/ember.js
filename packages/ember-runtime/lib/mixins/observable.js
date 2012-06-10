@@ -108,9 +108,7 @@ Ember.Observable = Ember.Mixin.create(/** @scope Ember.Observable.prototype */ {
     @param {String} key The property to retrieve
     @returns {Object} The property value or undefined.
   */
-  get: function(keyName) {
-    return get(this, keyName);
-  },
+  get: Ember._get,
 
   /**
     To get multiple properties at once, call getProperties
@@ -182,10 +180,7 @@ Ember.Observable = Ember.Mixin.create(/** @scope Ember.Observable.prototype */ {
     @param {Object} value The value to set or null.
     @returns {Ember.Observable}
   */
-  set: function(keyName, value) {
-    set(this, keyName, value);
-    return this;
-  },
+  set: Ember._set,
 
   /**
     To set multiple properties at once, call setProperties

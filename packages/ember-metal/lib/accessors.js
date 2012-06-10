@@ -135,6 +135,14 @@ set = function(obj, keyName, value) {
 */
 Ember.get = get;
 
+Ember._get = function(keyName) {
+  Ember.assert("You need to provide a key to `get`.", keyName);
+
+  var meta = this[META_KEY], desc = meta && meta.descs[keyName];
+  if (desc) { return desc.get(this, keyName); }
+  else { return basicGet(this, keyName); }
+};
+
 /**
   @function
 
@@ -165,6 +173,14 @@ Ember.get = get;
   @returns {Object} the passed value.
 */
 Ember.set = set;
+Ember._set = function(keyName, value) {
+  Ember.assert("You need to provide a key to `set`.", keyName !== undefined);
+
+  var meta = this[META_KEY], desc = meta && meta.descs[keyName];
+  if (desc) { desc.set(this, keyName, value); }
+  else { basicSet(this, keyName, value); }
+  return value;
+};
 
 // ..........................................................
 // PATHS
