@@ -10,15 +10,15 @@ var get = Ember.get, set = Ember.set, defineProperty = Ember.defineProperty;
   @class
 
   ## Overview
-  
+
   This mixin provides properties and property observing functionality, core
   features of the Ember object model.
-  
+
   Properties and observers allow one object to observe changes to a
   property on another object. This is one of the fundamental ways that
   models, controllers and views communicate with each other in an Ember
   application.
-  
+
   Any object that has this mixin applied can be used in observer
   operations. That includes Ember.Object and most objects you will
   interact with as you write your Ember application.
@@ -26,16 +26,16 @@ var get = Ember.get, set = Ember.set, defineProperty = Ember.defineProperty;
   Note that you will not generally apply this mixin to classes yourself,
   but you will use the features provided by this module frequently, so it
   is important to understand how to use it.
-  
+
   ## Using get() and set()
-  
+
   Because of Ember's support for bindings and observers, you will always
   access properties using the get method, and set properties using the
   set method. This allows the observing objects to be notified and
   computed properties to be handled properly.
-  
+
   More documentation about `get` and `set` are below.
-  
+
   ## Observing Property Changes
 
   You typically observe property changes simply by adding the `observes`
@@ -47,7 +47,7 @@ var get = Ember.get, set = Ember.set, defineProperty = Ember.defineProperty;
           // Executes whenever the "value" property changes
         }.observes('value')
       });
-    
+
   Although this is the most common way to add an observer, this capability
   is actually built into the Ember.Object class on top of two methods
   defined in this mixin: `addObserver` and `removeObserver`. You can use
@@ -60,12 +60,12 @@ var get = Ember.get, set = Ember.set, defineProperty = Ember.defineProperty;
 
   This will call the `targetAction` method on the `targetObject` to be called
   whenever the value of the `propertyKey` changes.
-  
-  Note that if `propertyKey` is a computed property, the observer will be 
-  called when any of the property dependencies are changed, even if the 
+
+  Note that if `propertyKey` is a computed property, the observer will be
+  called when any of the property dependencies are changed, even if the
   resulting value of the computed property is unchanged. This is necessary
   because computed properties are not computed until `get` is called.
-  
+
   @extends Ember.Mixin
 */
 Ember.Observable = Ember.Mixin.create(/** @scope Ember.Observable.prototype */ {
@@ -79,7 +79,7 @@ Ember.Observable = Ember.Mixin.create(/** @scope Ember.Observable.prototype */ {
     This method is usually similar to using object[keyName] or object.keyName,
     however it supports both computed properties and the unknownProperty
     handler.
-    
+
     Because `get` unifies the syntax for accessing all these kinds
     of properties, it can make many refactorings easier, such as replacing a
     simple property with a computed property, or vice versa.
@@ -275,11 +275,11 @@ Ember.Observable = Ember.Mixin.create(/** @scope Ember.Observable.prototype */ {
     Ember.propertyDidChange(this, keyName);
     return this;
   },
-  
+
   /**
     Convenience method to call `propertyWillChange` and `propertyDidChange` in
     succession.
-  
+
     @param {String} keyName The property key to be notified about.
     @returns {Ember.Observable}
   */
@@ -371,7 +371,7 @@ Ember.Observable = Ember.Mixin.create(/** @scope Ember.Observable.prototype */ {
     This method will be called when a client attempts to get the value of a
     property that has not been defined in one of the typical ways. Override
     this method to create "virtual" properties.
-    
+
     @param {String} key The name of the unknown property that was requested.
     @returns {Object} The property value or undefined. Default is undefined.
   */
@@ -383,7 +383,7 @@ Ember.Observable = Ember.Mixin.create(/** @scope Ember.Observable.prototype */ {
     This method will be called when a client attempts to set the value of a
     property that has not been defined in one of the typical ways. Override
     this method to create "virtual" properties.
-    
+
     @param {String} key The name of the unknown property to be set.
     @param {Object} value The value the unknown property is to be set to.
   */
@@ -416,9 +416,9 @@ Ember.Observable = Ember.Mixin.create(/** @scope Ember.Observable.prototype */ {
   /**
     Retrieves the value of a property, or a default value in the case that the property
     returns undefined.
-    
+
         person.getWithDefault('lastName', 'Doe');
-    
+
     @param {String} keyName The name of the property to retrieve
     @param {Object} defaultValue The value to return if the property value is undefined
     @returns {Object} The property value or the defaultValue.
@@ -429,10 +429,10 @@ Ember.Observable = Ember.Mixin.create(/** @scope Ember.Observable.prototype */ {
 
   /**
     Set the value of a property to the current value plus some amount.
-    
+
         person.incrementProperty('age');
         team.incrementProperty('score', 2);
-    
+
     @param {String} keyName The name of the property to increment
     @param {Object} increment The amount to increment by. Defaults to 1
     @returns {Object} The new property value
@@ -442,13 +442,13 @@ Ember.Observable = Ember.Mixin.create(/** @scope Ember.Observable.prototype */ {
     set(this, keyName, (get(this, keyName) || 0)+increment);
     return get(this, keyName);
   },
-  
+
   /**
     Set the value of a property to the current value minus some amount.
-    
+
         player.decrementProperty('lives');
         orc.decrementProperty('health', 5);
-    
+
     @param {String} keyName The name of the property to decrement
     @param {Object} increment The amount to decrement by. Defaults to 1
     @returns {Object} The new property value
@@ -462,9 +462,9 @@ Ember.Observable = Ember.Mixin.create(/** @scope Ember.Observable.prototype */ {
   /**
     Set the value of a boolean property to the opposite of it's
     current value.
-    
+
         starship.toggleProperty('warpDriveEnaged');
-    
+
     @param {String} keyName The name of the property to toggle
     @returns {Object} The new property value
   */

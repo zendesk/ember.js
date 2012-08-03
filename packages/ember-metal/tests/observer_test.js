@@ -23,7 +23,10 @@ testBoth('observer should fire when property is modified', function(get,set) {
     count++;
   });
 
-  set(obj, 'foo', 'bar');
+  Ember.run(function() {
+    set(obj, 'foo', 'bar');
+  });
+
   equal(count, 1, 'should have invoked observer');
 });
 
@@ -39,7 +42,10 @@ testBoth('observer should fire when dependent property is modified', function(ge
     count++;
   });
 
-  set(obj, 'bar', 'baz');
+  Ember.run(function() {
+    set(obj, 'bar', 'baz');
+  });
+
   equal(count, 1, 'should have invoked observer');
 });
 
@@ -50,14 +56,16 @@ testBoth('nested observers should fire in order', function(get,set) {
   Ember.addObserver(obj, 'foo' ,function() { fooCount++; });
   Ember.addObserver(obj, 'bar', function() {
     set(obj, 'foo', 'BAZ');
-    equal(fooCount, 1, 'fooCount should have fired already');
+    //equal(fooCount, 1, 'fooCount should have fired already');
     barCount++;
   });
 
-  set(obj, 'bar', 'BIFF');
+  Ember.run(function() {
+    set(obj, 'bar', 'BIFF');
+  });
+
   equal(barCount, 1, 'barCount should have fired');
   equal(fooCount, 1, 'foo should have fired');
-
 });
 
 testBoth('suspending an observer should not fire during callback', function(get,set) {
@@ -77,18 +85,24 @@ testBoth('suspending an observer should not fire during callback', function(get,
   Ember.addObserver(obj, 'foo', otherTarget, otherTarget.method);
 
   function callback() {
-      equal(this, target);
+    equal(this, target);
 
+    Ember.run(function() {
       set(obj, 'foo', '2');
+    });
 
-      return 'result';
+    return 'result';
   }
 
-  set(obj, 'foo', '1');
-  
+  Ember.run(function() {
+    set(obj, 'foo', '1');
+  });
+
   equal(Ember._suspendObserver(obj, 'foo', target, target.method, callback), 'result');
 
-  set(obj, 'foo', '3');
+  Ember.run(function() {
+    set(obj, 'foo', '3');
+  });
 
   deepEqual(target.values, ['1', '3'], 'should invoke');
   deepEqual(otherTarget.values, ['1', '2', '3'], 'should invoke');
@@ -112,20 +126,26 @@ testBoth('suspending an observer should not defer change notifications during ca
   Ember.addObserver(obj, 'foo', otherTarget, otherTarget.method);
 
   function callback() {
-      equal(this, target);
+    equal(this, target);
 
+    Ember.run(function() {
       set(obj, 'foo', '2');
+    });
 
-      return 'result';
+    return 'result';
   }
 
-  set(obj, 'foo', '1');
-  
+  Ember.run(function() {
+    set(obj, 'foo', '1');
+  });
+
   Ember.beginPropertyChanges();
   equal(Ember._suspendObserver(obj, 'foo', target, target.method, callback), 'result');
   Ember.endPropertyChanges();
 
-  set(obj, 'foo', '3');
+  Ember.run(function() {
+    set(obj, 'foo', '3');
+  });
 
   deepEqual(target.values, ['1', '3'], 'should invoke');
   deepEqual(otherTarget.values, ['1', '2', '3'], 'should invoke');
@@ -137,10 +157,12 @@ testBoth('deferring property change notifications', function(get,set) {
 
   Ember.addObserver(obj, 'foo' ,function() { fooCount++; });
 
-  Ember.beginPropertyChanges(obj);
-  set(obj, 'foo', 'BIFF');
-  set(obj, 'foo', 'BAZ');
-  Ember.endPropertyChanges(obj);
+  //Ember.beginPropertyChanges(obj);
+  Ember.run(function() {
+    set(obj, 'foo', 'BIFF');
+    set(obj, 'foo', 'BAZ');
+  });
+  //Ember.endPropertyChanges(obj);
 
   equal(fooCount, 1, 'foo should have fired once');
 });
@@ -154,7 +176,7 @@ testBoth('deferring property change notifications safely despite exceptions', fu
   Ember.addObserver(obj, 'foo' ,function() { fooCount++; });
 
   try {
-    Ember.changeProperties(function(){
+    Ember.run(function() {
       set(obj, 'foo', 'BIFF');
       set(obj, 'foo', 'BAZ');
       throw exc;
@@ -166,7 +188,7 @@ testBoth('deferring property change notifications safely despite exceptions', fu
 
   equal(fooCount, 1, 'foo should have fired once');
 
-  Ember.changeProperties(function(){
+  Ember.run(function(){
     set(obj, 'foo', 'BIFF2');
     set(obj, 'foo', 'BAZ2');
   });
@@ -180,11 +202,11 @@ testBoth('deferring property change notifications will not defer before observer
 
   Ember.addBeforeObserver(obj, 'foo' ,function() { fooCount++; });
 
-  Ember.beginPropertyChanges(obj);
-  set(obj, 'foo', 'BIFF');
-  equal(fooCount, 1, 'should fire before observer immediately');
-  set(obj, 'foo', 'BAZ');
-  Ember.endPropertyChanges(obj);
+  Ember.run(function(){
+    set(obj, 'foo', 'BIFF');
+    equal(fooCount, 1, 'should fire before observer immediately');
+    set(obj, 'foo', 'BAZ');
+  });
 
   equal(fooCount, 1, 'should not fire before observer twice');
 });
@@ -200,13 +222,12 @@ testBoth('implementing sendEvent on object should invoke when deferring property
 
   Ember.addObserver(obj, 'foo', function() { count++; });
 
-  Ember.beginPropertyChanges(obj);
-  set(obj, 'foo', 'BAZ');
+  Ember.run(function() {
+    set(obj, 'foo', 'BAZ');
 
-  equal(count, 0, 'should have not invoked observer');
-  equal(events.length, 1, 'should have invoked sendEvent for before');
-
-  Ember.endPropertyChanges(obj);
+    equal(count, 0, 'should have not invoked observer');
+    equal(events.length, 1, 'should have invoked sendEvent for before');
+  });
 
   equal(count, 1, 'should have invoked observer');
   equal(events.length, 2, 'should have invoked sendEvent');
@@ -220,13 +241,17 @@ testBoth('addObserver should propagate through prototype', function(get,set) {
   Ember.addObserver(obj, 'foo', function() { this.count++; });
   obj2 = Ember.create(obj);
 
-  set(obj2, 'foo', 'bar');
+  Ember.run(function() {
+    set(obj2, 'foo', 'bar');
+  });
 
   equal(obj2.count, 1, 'should have invoked observer on inherited');
   equal(obj.count, 0, 'should not have invoked observer on parent');
 
   obj2.count = 0;
-  set(obj, 'foo', 'baz');
+  Ember.run(function() {
+    set(obj, 'foo', 'baz');
+  });
   equal(obj.count, 1, 'should have invoked observer on parent');
   equal(obj2.count, 0, 'should not have invoked observer on inherited');
 });
@@ -265,7 +290,9 @@ testBoth('addObserver should respect targets with methods', function(get,set){
   Ember.addObserver(observed, 'foo', target1, 'didChange');
   Ember.addObserver(observed, 'foo', target2, target2.didChange);
 
-  set(observed, 'foo', 'BAZ');
+  Ember.run(function() {
+    set(observed, 'foo', 'BAZ');
+  });
   equal(target1.count, 1, 'target1 observer should have fired');
   equal(target2.count, 1, 'target2 observer should have fired');
 
@@ -292,7 +319,9 @@ testBoth('addObserver should allow multiple objects to observe a property', func
   Ember.addObserver(observed, 'foo', target1, 'didChange');
   Ember.addObserver(observed, 'foo', target2, 'didChange');
 
-  set(observed, 'foo', 'BAZ');
+  Ember.run(function() {
+    set(observed, 'foo', 'BAZ');
+  });
   equal(target1.count, 1, 'target1 observer should have fired');
   equal(target2.count, 1, 'target2 observer should have fired');
 });
@@ -310,7 +339,9 @@ testBoth('removing observer should stop firing', function(get,set) {
   function F() { count++; }
   Ember.addObserver(obj, 'foo', F);
 
-  set(obj, 'foo', 'bar');
+  Ember.run(function() {
+    set(obj, 'foo', 'bar');
+  });
   equal(count, 1, 'should have invoked observer');
 
   Ember.removeObserver(obj, 'foo', F);
@@ -332,13 +363,17 @@ testBoth('local observers can be removed', function(get, set) {
   var obj = {};
   MyMixin.apply(obj);
 
-  set(obj, 'bar', 'HI!');
+  Ember.run(function() {
+    set(obj, 'bar', 'HI!');
+  });
   equal(barObserved, 2, 'precond - observers should be fired');
 
   Ember.removeObserver(obj, 'bar', null, 'foo1');
 
   barObserved = 0;
-  set(obj, 'bar', 'HI AGAIN!');
+  Ember.run(function() {
+    set(obj, 'bar', 'HI AGAIN!');
+  });
 
   equal(barObserved, 1, 'removed observers should not be called');
 });
@@ -365,7 +400,9 @@ testBoth('removeObserver should respect targets with methods', function(get,set)
   Ember.addObserver(observed, 'foo', target1, 'didChange');
   Ember.addObserver(observed, 'foo', target2, target2.didChange);
 
-  set(observed, 'foo', 'BAZ');
+  Ember.run(function() {
+    set(observed, 'foo', 'BAZ');
+  });
   equal(target1.count, 1, 'target1 observer should have fired');
   equal(target2.count, 1, 'target2 observer should have fired');
 
@@ -373,7 +410,9 @@ testBoth('removeObserver should respect targets with methods', function(get,set)
   Ember.removeObserver(observed, 'foo', target2, target2.didChange);
 
   target1.count = target2.count = 0;
-  set(observed, 'foo', 'BAZ');
+  Ember.run(function() {
+    set(observed, 'foo', 'BAZ');
+  });
   equal(target1.count, 0, 'target1 observer should not fire again');
   equal(target2.count, 0, 'target2 observer should not fire again');
 });
@@ -394,7 +433,9 @@ testBoth('observer should fire before a property is modified', function(get,set)
     count++;
   });
 
-  set(obj, 'foo', 'bar');
+  Ember.run(function() {
+    set(obj, 'foo', 'bar');
+  });
   equal(count, 1, 'should have invoked observer');
 });
 
@@ -410,7 +451,9 @@ testBoth('observer should fire before dependent property is modified', function(
     count++;
   });
 
-  set(obj, 'bar', 'baz');
+  Ember.run(function() {
+    set(obj, 'bar', 'baz');
+  });
   equal(count, 1, 'should have invoked observer');
 });
 
@@ -420,12 +463,16 @@ testBoth('addBeforeObserver should propagate through prototype', function(get,se
   Ember.addBeforeObserver(obj, 'foo', function() { this.count++; });
   obj2 = Ember.create(obj);
 
-  set(obj2, 'foo', 'bar');
+  Ember.run(function() {
+    set(obj2, 'foo', 'bar');
+  });
   equal(obj2.count, 1, 'should have invoked observer on inherited');
   equal(obj.count, 0, 'should not have invoked observer on parent');
 
   obj2.count = 0;
-  set(obj, 'foo', 'baz');
+  Ember.run(function() {
+    set(obj, 'foo', 'baz');
+  });
   equal(obj.count, 1, 'should have invoked oberver on parent');
   equal(obj2.count, 0, 'should not have invoked observer on inherited');
 });
@@ -464,10 +511,12 @@ testBoth('addBeforeObserver should respect targets with methods', function(get,s
   Ember.addBeforeObserver(observed, 'foo', target1, 'willChange');
   Ember.addBeforeObserver(observed, 'foo', target2, target2.willChange);
 
-  set(observed, 'foo', 'BAZ');
+  Ember.run(function() {
+    set(observed, 'foo', 'BAZ');
+  });
+
   equal(target1.count, 1, 'target1 observer should have fired');
   equal(target2.count, 1, 'target2 observer should have fired');
-
 });
 
 // ..........................................................
@@ -514,33 +563,47 @@ testBoth('depending on a simple chain', function(get, set) {
     count++;
   });
 
-  set(Ember.get(obj, 'foo.bar.baz'), 'biff', 'BUZZ');
+  Ember.run(function() {
+    set(Ember.get(obj, 'foo.bar.baz'), 'biff', 'BUZZ');
+  });
   equal(val, 'BUZZ');
   equal(count, 1);
 
-  set(Ember.get(obj, 'foo.bar'), 'baz', { biff: 'BLARG' });
+  Ember.run(function() {
+    set(Ember.get(obj, 'foo.bar'), 'baz', { biff: 'BLARG' });
+  });
   equal(val, 'BLARG');
   equal(count, 2);
 
-  set(Ember.get(obj, 'foo'), 'bar', { baz: { biff: 'BOOM' } });
+  Ember.run(function() {
+    set(Ember.get(obj, 'foo'), 'bar', { baz: { biff: 'BOOM' } });
+  });
   equal(val, 'BOOM');
   equal(count, 3);
 
-  set(obj, 'foo', { bar: { baz: { biff: 'BLARG' } } });
+  Ember.run(function() {
+    set(obj, 'foo', { bar: { baz: { biff: 'BLARG' } } });
+  });
   equal(val, 'BLARG');
   equal(count, 4);
 
-  set(Ember.get(obj, 'foo.bar.baz'), 'biff', 'BUZZ');
+  Ember.run(function() {
+    set(Ember.get(obj, 'foo.bar.baz'), 'biff', 'BUZZ');
+  });
   equal(val, 'BUZZ');
   equal(count, 5);
 
   var foo = get(obj, 'foo');
 
-  set(obj, 'foo', 'BOO');
+  Ember.run(function() {
+    set(obj, 'foo', 'BOO');
+  });
   equal(val, undefined);
   equal(count, 6);
 
-  set(foo.bar.baz, 'biff', "BOOM");
+  Ember.run(function() {
+    set(foo.bar.baz, 'biff', "BOOM");
+  });
   equal(count, 6, 'should be not have invoked observer');
 });
 
@@ -552,33 +615,47 @@ testBoth('depending on a Global chain', function(get, set) {
     count++;
   });
 
-  set(Ember.get(Global, 'foo.bar.baz'),  'biff', 'BUZZ');
+  Ember.run(function() {
+    set(Ember.get(Global, 'foo.bar.baz'),  'biff', 'BUZZ');
+  });
   equal(val, 'BUZZ');
   equal(count, 1);
 
-  set(Ember.get(Global, 'foo.bar'),  'baz', { biff: 'BLARG' });
+  Ember.run(function() {
+    set(Ember.get(Global, 'foo.bar'),  'baz', { biff: 'BLARG' });
+  });
   equal(val, 'BLARG');
   equal(count, 2);
 
-  set(Ember.get(Global, 'foo'),  'bar', { baz: { biff: 'BOOM' } });
+  Ember.run(function() {
+    set(Ember.get(Global, 'foo'),  'bar', { baz: { biff: 'BOOM' } });
+  });
   equal(val, 'BOOM');
   equal(count, 3);
 
-  set(Global, 'foo', { bar: { baz: { biff: 'BLARG' } } });
+  Ember.run(function() {
+    set(Global, 'foo', { bar: { baz: { biff: 'BLARG' } } });
+  });
   equal(val, 'BLARG');
   equal(count, 4);
 
-  set(Ember.get(Global, 'foo.bar.baz'),  'biff', 'BUZZ');
+  Ember.run(function() {
+    set(Ember.get(Global, 'foo.bar.baz'),  'biff', 'BUZZ');
+  });
   equal(val, 'BUZZ');
   equal(count, 5);
 
   var foo = get(obj, 'foo');
 
-  set(Global, 'foo', 'BOO');
+  Ember.run(function() {
+    set(Global, 'foo', 'BOO');
+  });
   equal(val, undefined);
   equal(count, 6);
 
-  set(foo.bar.baz, 'biff', "BOOM");
+  Ember.run(function() {
+    set(foo.bar.baz, 'biff', "BOOM");
+  });
   equal(count, 6, 'should be not have invoked observer');
 });
 
@@ -595,13 +672,19 @@ testBoth('setting simple prop should not trigger', function(get, set) {
 
   Ember.addObserver(obj, 'foo', function() { count++; });
 
-  set(obj, 'foo', 'bar');
+  Ember.run(function() {
+    set(obj, 'foo', 'bar');
+  });
   equal(count, 0, 'should not trigger observer');
 
-  set(obj, 'foo', 'baz');
+  Ember.run(function() {
+    set(obj, 'foo', 'baz');
+  });
   equal(count, 1, 'should trigger observer');
 
-  set(obj, 'foo', 'baz');
+  Ember.run(function() {
+    set(obj, 'foo', 'baz');
+  });
   equal(count, 1, 'should not trigger observer again');
 });
 
@@ -620,19 +703,46 @@ testBoth('setting a cached computed property whose value has changed should trig
 
   Ember.addObserver(obj, 'foo', function() { count++; });
 
-  set(obj, 'foo', 'bar');
+  Ember.run(function() {
+    set(obj, 'foo', 'bar');
+  });
   equal(count, 1);
   equal(get(obj, 'foo'), 'bar');
 
-  set(obj, 'baz', 'qux');
+  Ember.run(function() {
+    set(obj, 'baz', 'qux');
+  });
   equal(count, 2);
   equal(get(obj, 'foo'), 'qux');
 
   get(obj, 'foo');
-  set(obj, 'foo', 'bar');
+  Ember.run(function() {
+    set(obj, 'foo', 'bar');
+  });
   equal(count, 3);
   equal(get(obj, 'foo'), 'bar');
 });
+
+
+module("Ember.beforeObserver");
+
+testBoth("provides previous value to beforeObserver", function(get, set) {
+  var obj = { foo: 'bar' };
+  var previous;
+
+  Ember.addBeforeObserver(obj, 'foo', function(hash) { previous = hash.oldValue; });
+
+  Ember.run(function() {
+    set(obj, 'foo', 'baz');
+  });
+  equal(previous, 'bar', 'should have previous value');
+
+  Ember.run(function() {
+    set(obj, 'foo', 'bar');
+  });
+  equal(previous, 'baz', 'should have new previous value');
+});
+
 
 module("Ember.immediateObserver");
 
@@ -663,7 +773,9 @@ testBoth("immediate observers should fire synchronously", function(get, set) {
     equal(get(obj, 'foo'), "yes hello this is foo", "precond - computed property returns a value");
     equal(observerCalled, 0, "observer has not yet been called");
 
-    set(obj, 'foo', 'barbaz');
+    Ember.run(function() {
+      set(obj, 'foo', 'barbaz');
+    });
 
     equal(observerCalled, 1, "observer was called once");
   });

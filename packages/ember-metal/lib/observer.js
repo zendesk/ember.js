@@ -13,9 +13,9 @@ require('ember-metal/array');
 var AFTER_OBSERVERS = ':change';
 var BEFORE_OBSERVERS = ':before';
 var guidFor = Ember.guidFor;
+var get = Ember.get;
 
-var deferred = 0;
-var array_Slice = [].slice;
+var deferred = 1;
 
 /** @private */
 var ObserverSet = function () {
@@ -38,6 +38,22 @@ ObserverSet.prototype.clear = function () {
   this.targetSet = {};
 };
 
+function observerHash(obj, eventName, name) {
+  var hash = {
+    type: "updated",
+    object: obj,
+    name: name
+  };
+
+  var type = eventName.split(':')[1];
+  if (type === 'before') {
+    var oldValue = get(obj, name);
+    if (oldValue !== undefined) { hash.oldValue = oldValue; }
+  }
+
+  return hash;
+}
+
 /** @private */
 var DeferredEventQueue = function() {
   this.targetSet = {};
@@ -49,19 +65,15 @@ DeferredEventQueue.prototype.push = function(target, eventName, keyName) {
     queue = this.queue,
     targetGuid = Ember.guidFor(target),
     eventNameSet = targetSet[targetGuid],
-    index;
+    index, hash;
 
   if (!eventNameSet) {
     targetSet[targetGuid] = eventNameSet = {};
   }
   index = eventNameSet[eventName];
 
-  var hash = {
-    type: "updated",
-    object: target,
-    name: keyName
-    //oldValue: 1
-  };
+  hash = observerHash(target, eventName, keyName);
+
   if (index === undefined) {
     eventNameSet[eventName] = queue.push(Ember.deferEvent(target, eventName, [hash])) - 1;
   } else {
@@ -84,13 +96,9 @@ var queue = new DeferredEventQueue(), beforeObserverSet = new ObserverSet();
 function notifyObservers(obj, eventName, keyName, forceNotification) {
   if (deferred && !forceNotification) {
     queue.push(obj, eventName, keyName);
+    Ember.run.once(flushObserverQueue);
   } else {
-    var hash = {
-      type: "updated",
-      object: obj,
-      name: keyName
-      //oldValue: 1
-    };
+    var hash = observerHash(obj, eventName, keyName);
     Ember.sendEvent(obj, eventName, [hash]);
   }
 }

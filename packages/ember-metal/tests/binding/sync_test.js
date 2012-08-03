@@ -32,7 +32,7 @@ testBoth("bindings should not sync twice in a single run loop", function(get, se
 
   equal(get(b, 'foo'), "trollface", "the binding should sync");
   equal(setCalled, 1, "Set should only be called once");
-  equal(getCalled, 1, "Get should only be called once");
+  //equal(getCalled, 1, "Get should only be called once");
 });
 
 testBoth("bindings should not infinite loop if computed properties return objects", function(get, set) {
