@@ -20,19 +20,19 @@ var ObserverClass = Ember.Object.extend({
   },
 
 
-  propertyWillChange: function(target, key) {
-    if (this._keysBefore[key] === undefined) { this._keysBefore[key] = 0; }
-    this._keysBefore[key]++;
+  propertyWillChange: function(hash) {
+    if (this._keysBefore[hash.name] === undefined) { this._keysBefore[hash.name] = 0; }
+    this._keysBefore[hash.name]++;
   },
 
   /**
     Invoked when the property changes.  Just records the parameters for
     later analysis.
   */
-  propertyDidChange: function(target, key, value) {
-    if (this._keys[key] === undefined) { this._keys[key] = 0; }
-    this._keys[key]++;
-    this._values[key] = value;
+  propertyDidChange: function(hash) {
+    if (this._keys[hash.name] === undefined) { this._keys[hash.name] = 0; }
+    this._keys[hash.name]++;
+    this._values[hash.name] = Ember.get(hash.object, hash.name);
   },
 
   /**

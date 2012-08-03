@@ -55,10 +55,17 @@ DeferredEventQueue.prototype.push = function(target, eventName, keyName) {
     targetSet[targetGuid] = eventNameSet = {};
   }
   index = eventNameSet[eventName];
+
+  var hash = {
+    type: "updated",
+    object: target,
+    name: keyName
+    //oldValue: 1
+  };
   if (index === undefined) {
-    eventNameSet[eventName] = queue.push(Ember.deferEvent(target, eventName, [target, keyName])) - 1;
+    eventNameSet[eventName] = queue.push(Ember.deferEvent(target, eventName, [hash])) - 1;
   } else {
-    queue[index] = Ember.deferEvent(target, eventName, [target, keyName]);
+    queue[index] = Ember.deferEvent(target, eventName, [hash]);
   }
 };
 
@@ -78,7 +85,13 @@ function notifyObservers(obj, eventName, keyName, forceNotification) {
   if (deferred && !forceNotification) {
     queue.push(obj, eventName, keyName);
   } else {
-    Ember.sendEvent(obj, eventName, [obj, keyName]);
+    var hash = {
+      type: "updated",
+      object: obj,
+      name: keyName
+      //oldValue: 1
+    };
+    Ember.sendEvent(obj, eventName, [hash]);
   }
 }
 

@@ -192,12 +192,12 @@ Ember.EachProxy = Ember.Object.extend({
     }
   },
 
-  contentKeyWillChange: function(obj, keyName) {
-    Ember.propertyWillChange(this, keyName);
+  contentKeyWillChange: function(hash) {
+    Ember.propertyWillChange(this, hash.name);
   },
 
-  contentKeyDidChange: function(obj, keyName) {
-    Ember.propertyDidChange(this, keyName);
+  contentKeyDidChange: function(hash) {
+    Ember.propertyDidChange(this, hash.name);
   }
 
 });

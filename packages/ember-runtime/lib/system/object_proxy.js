@@ -10,14 +10,14 @@ var get = Ember.get,
     propertyWillChange = Ember.propertyWillChange,
     propertyDidChange = Ember.propertyDidChange;
 
-function contentPropertyWillChange(content, contentKey) {
-  var key = contentKey.slice(8); // remove "content."
+function contentPropertyWillChange(hash) {
+  var key = hash.name.slice(8); // remove "content."
   if (key in this) { return; }  // if shadowed in proxy
   propertyWillChange(this, key);
 }
 
-function contentPropertyDidChange(content, contentKey) {
-  var key = contentKey.slice(8); // remove "content."
+function contentPropertyDidChange(hash) {
+  var key = hash.name.slice(8); // remove "content."
   if (key in this) { return; } // if shadowed in proxy
   propertyDidChange(this, key);
 }

@@ -237,12 +237,13 @@ testBoth('addObserver should respect targets with methods', function(get,set){
   var target1 = {
     count: 0,
 
-    didChange: function(obj, keyName) {
-      var value = get(obj, keyName);
+    didChange: function(hash) {
+      var value = get(hash.object, hash.name);
       equal(this, target1, 'should invoke with this');
-      equal(obj, observed, 'param1 should be observed object');
-      equal(keyName, 'foo', 'param2 should be keyName');
-      equal(value, 'BAZ', 'param3 should new value');
+      equal(hash.object, observed, 'should have object');
+      equal(hash.name, 'foo', 'should have name');
+      equal(hash.type, 'updated', 'should have type of "updated"');
+      equal(value, 'BAZ', 'should have value');
       this.count++;
     }
   };
@@ -250,12 +251,13 @@ testBoth('addObserver should respect targets with methods', function(get,set){
   var target2 = {
     count: 0,
 
-    didChange: function(obj, keyName) {
-      var value = get(obj, keyName);
+    didChange: function(hash) {
+      var value = get(hash.object, hash.name);
       equal(this, target2, 'should invoke with this');
-      equal(obj, observed, 'param1 should be observed object');
-      equal(keyName, 'foo', 'param2 should be keyName');
-      equal(value, 'BAZ', 'param3 should new value');
+      equal(hash.object, observed, 'should have object');
+      equal(hash.name, 'foo', 'should have name');
+      equal(hash.type, 'updated', 'should have type of "updated"');
+      equal(value, 'BAZ', 'should have value');
       this.count++;
     }
   };
@@ -274,7 +276,7 @@ testBoth('addObserver should allow multiple objects to observe a property', func
   var target1 = {
     count: 0,
 
-    didChange: function(obj, keyName, value) {
+    didChange: function() {
       this.count++;
     }
   };
@@ -282,7 +284,7 @@ testBoth('addObserver should allow multiple objects to observe a property', func
   var target2 = {
     count: 0,
 
-    didChange: function(obj, keyName, value) {
+    didChange: function() {
       this.count++;
     }
   };
@@ -434,12 +436,13 @@ testBoth('addBeforeObserver should respect targets with methods', function(get,s
   var target1 = {
     count: 0,
 
-    willChange: function(obj, keyName) {
-      var value = get(obj, keyName);
+    willChange: function(hash) {
+      var value = get(hash.object, hash.name);
       equal(this, target1, 'should invoke with this');
-      equal(obj, observed, 'param1 should be observed object');
-      equal(keyName, 'foo', 'param2 should be keyName');
-      equal(value, 'foo', 'param3 should old value');
+      equal(hash.object, observed, 'should have object');
+      equal(hash.name, 'foo', 'should have name');
+      equal(hash.type, 'updated', 'should have type');
+      equal(value, 'foo', 'should be value');
       this.count++;
     }
   };
@@ -447,12 +450,13 @@ testBoth('addBeforeObserver should respect targets with methods', function(get,s
   var target2 = {
     count: 0,
 
-    willChange: function(obj, keyName) {
-      var value = get(obj, keyName);
+    willChange: function(hash) {
+      var value = get(hash.object, hash.name);
       equal(this, target2, 'should invoke with this');
-      equal(obj, observed, 'param1 should be observed object');
-      equal(keyName, 'foo', 'param2 should be keyName');
-      equal(value, 'foo', 'param3 should old value');
+      equal(hash.object, observed, 'should have object');
+      equal(hash.name, 'foo', 'should have name');
+      equal(hash.type, 'updated', 'should have type');
+      equal(value, 'foo', 'should be value');
       this.count++;
     }
   };
@@ -505,8 +509,8 @@ module('Ember.addObserver - dependentkey with chained properties', {
 testBoth('depending on a simple chain', function(get, set) {
 
   var val ;
-  Ember.addObserver(obj, 'foo.bar.baz.biff', function(target, key) {
-    val = Ember.get(target, key);
+  Ember.addObserver(obj, 'foo.bar.baz.biff', function(hash) {
+    val = Ember.get(hash.object, hash.name);
     count++;
   });
 
@@ -543,8 +547,8 @@ testBoth('depending on a simple chain', function(get, set) {
 testBoth('depending on a Global chain', function(get, set) {
 
   var val ;
-  Ember.addObserver(obj, 'Global.foo.bar.baz.biff', function(target, key){
-    val = Ember.get(window, key);
+  Ember.addObserver(obj, 'Global.foo.bar.baz.biff', function(hash){
+    val = Ember.get(window, hash.name);
     count++;
   });
 

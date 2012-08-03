@@ -177,13 +177,13 @@ Binding.prototype = /** @scope Ember.Binding.prototype */ {
   //
 
   /** @private - called when the from side changes */
-  fromDidChange: function(target) {
-    this._scheduleSync(target, 'fwd');
+  fromDidChange: function(hash) {
+    this._scheduleSync(hash.object, 'fwd');
   },
 
   /** @private - called when the to side changes */
-  toDidChange: function(target) {
-    this._scheduleSync(target, 'back');
+  toDidChange: function(hash) {
+    this._scheduleSync(hash.object, 'back');
   },
 
   /** @private */
