@@ -179,11 +179,11 @@ Ember.RunLoop = RunLoop;
 // ..........................................................
 // Ember.run - this is ideally the only public API the dev sees
 //
-/** 
+/**
 * @namespace Ember.run is both a function and a namespace for
 * RunLoop-related functions.
 * @name Ember.run
-*/ 
+*/
 
 /**
   Runs the passed target and method inside of a RunLoop, ensuring any
@@ -196,7 +196,7 @@ Ember.RunLoop = RunLoop;
   call.
 
       Ember.run(function(){
-        // code to be execute within a RunLoop 
+        // code to be execute within a RunLoop
       });
 
   @name run^2
@@ -235,7 +235,7 @@ var run = Ember.run;
   an lower-level way to use a RunLoop instead of using Ember.run().
 
       Ember.run.begin();
-      // code to be execute within a RunLoop 
+      // code to be execute within a RunLoop
       Ember.run.end();
 
 
@@ -251,7 +251,7 @@ Ember.run.begin = function() {
   instead of using Ember.run().
 
       Ember.run.begin();
-      // code to be execute within a RunLoop 
+      // code to be execute within a RunLoop
       Ember.run.end();
 
   @returns {void}
@@ -458,6 +458,35 @@ function invokeOnceTimer(guid, onceTimers) {
   delete timers[guid];
 }
 
+function scheduleOnce(queue, target, method, args) {
+  var tguid = Ember.guidFor(target),
+    mguid = Ember.guidFor(method),
+    onceTimers = run.autorun().onceTimers,
+    guid = onceTimers[tguid] && onceTimers[tguid][mguid],
+    timer;
+
+  if (guid && timers[guid]) {
+    timers[guid].args = args; // replace args
+  } else {
+    timer = {
+      target: target,
+      method: method,
+      args:   args,
+      tguid:  tguid,
+      mguid:  mguid
+    };
+
+    guid  = Ember.guidFor(timer);
+    timers[guid] = timer;
+    if (!onceTimers[tguid]) { onceTimers[tguid] = {}; }
+    onceTimers[tguid][mguid] = guid; // so it isn't scheduled more than once
+
+    run.schedule(queue, timer, invokeOnceTimer, guid, onceTimers);
+  }
+
+  return guid;
+}
+
 /**
   Schedules an item to run one time during the current RunLoop.  Calling
   this method with the same target/method combination will have no effect.
@@ -487,31 +516,11 @@ function invokeOnceTimer(guid, onceTimers) {
   @returns {Object} timer
 */
 Ember.run.once = function(target, method) {
-  var tguid = Ember.guidFor(target), mguid = Ember.guidFor(method), guid, timer;
+  return scheduleOnce('actions', target, method, slice.call(arguments));
+};
 
-  var onceTimers = run.autorun().onceTimers;
-  guid = onceTimers[tguid] && onceTimers[tguid][mguid];
-  if (guid && timers[guid]) {
-    timers[guid].args = slice.call(arguments); // replace args
-
-  } else {
-    timer = {
-      target: target,
-      method: method,
-      args:   slice.call(arguments),
-      tguid:  tguid,
-      mguid:  mguid
-    };
-
-    guid  = Ember.guidFor(timer);
-    timers[guid] = timer;
-    if (!onceTimers[tguid]) onceTimers[tguid] = {};
-    onceTimers[tguid][mguid] = guid; // so it isn't scheduled more than once
-
-    run.schedule('actions', timer, invokeOnceTimer, guid, onceTimers);
-  }
-
-  return guid;
+Ember.run.scheduleOnce = function(queue, target, method) {
+  return scheduleOnce(queue, target, method, slice.call(arguments));
 };
 
 var scheduledNext = false;
