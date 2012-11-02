@@ -628,3 +628,32 @@ Ember.Router = Ember.StateManager.extend(
     get(this, 'location').destroy();
   }
 });
+
+Ember.Router.reopenClass({
+  map: function(map) {
+    var paths = {};
+
+    function matcher(path) {
+      // return a DSL object that can be
+      // used by the match() function to
+      // configure this path
+      return {
+        to: function(route) {
+          paths[path] = route;
+        }
+      };
+    }
+
+    map(matcher);
+
+    this._reifyPaths(paths);
+  },
+
+  _reifyPaths: function(paths) {
+    for (var path in paths) {
+      if (!paths.hasOwnProperty(path)) { continue; }
+
+      this.states['GET '+path] = Ember.Route.create();
+    }
+  }
+});
