@@ -35,11 +35,16 @@ Ember.View.states.hasElement = {
   // once the view has been inserted into the DOM, rerendering is
   // deferred to allow bindings to synchronize.
   rerender: function(view) {
-    view._notifyWillClearRender();
+    debugger;
 
-    view.clearRenderedChildren();
+    if (view._scheduledRerender) { return; }
 
-    view.domManager.replace(view);
+    view._notifyWillClearRender(true);
+
+    view.clearRenderedChildren(true);
+
+    view._scheduledRerender = Ember.run.scheduleOnce('render', view, '_rerender');
+
     return view;
   },
 
@@ -50,12 +55,7 @@ Ember.View.states.hasElement = {
   destroyElement: function(view) {
     view._notifyWillDestroyElement();
     view.domManager.remove(view);
-    set(view, 'element', null);
-    if (view._scheduledInsert) {
-      Ember.run.cancel(view._scheduledInsert);
-      view._scheduledInsert = null;
-    }
-    return view;
+    return Ember.View.states._default.destroyElement(view);
   },
 
   empty: function(view) {
@@ -86,5 +86,22 @@ Ember.View.states.inDOM = {
 
   insertElement: function(view, fn) {
     throw "You can't insert an element into the DOM that has already been inserted";
+  }
+};
+
+Ember.View.states.contentsInBuffer = {
+  parentState: Ember.View.states.inDOM,
+
+  appendChild: function(view, childView, options) {
+    var buffer = view.buffer;
+
+    childView = this.createChildView(childView, options);
+    view._childViews.push(childView);
+
+    childView.renderToBuffer(buffer);
+
+    view.propertyDidChange('childViews');
+
+    return childView;
   }
 };

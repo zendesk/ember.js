@@ -33,6 +33,10 @@ Ember.View.states = {
         Ember.run.cancel(view._scheduledInsert);
         view._scheduledInsert = null;
       }
+      if (view._scheduledRerender) {
+        Ember.run.cancel(view._scheduledRerender);
+        view._scheduledRerender = null;
+      }
       return view;
     },
 

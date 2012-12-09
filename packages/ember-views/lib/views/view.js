@@ -44,6 +44,7 @@ var invokeForState = {
   inBuffer: {},
   hasElement: {},
   inDOM: {},
+  contentsInBuffer: {},
   destroyed: {}
 };
 
@@ -1257,7 +1258,33 @@ Ember.View = Ember.CoreView.extend(
     return this.invokeForState('rerender');
   },
 
-  clearRenderedChildren: function() {
+  _scheduledRerender: null,
+
+  _rerender: function() {
+    if (this.state !== 'inDOM') {
+      throw new Error('EWOT');
+    }
+    this.state = 'contentsInBuffer';
+    var buffer = new Ember.RenderBuffer('');
+    this.buffer = buffer;
+    this.lengthBeforeRender = this._childViews.length;
+    this.render(buffer);
+    this.lengthAfterRender = this._childViews.length;
+    this.domManager.html(this, buffer.string());
+    this.buffer = null;
+
+    for (var i = 0, len = this._childViews.length; i < len; i++) {
+      var childView = this._childViews[i];
+      childView.transitionTo('inDOM');
+      childView.propertyDidChange('element');
+      childView._notifyDidInsertElement();
+    }
+
+    this.state = 'inDOM';
+    this._scheduledRerender = null;
+  },
+
+  clearRenderedChildren: function(setFlag) {
     var lengthBefore = this.lengthBeforeRender,
         lengthAfter  = this.lengthAfterRender;
 
@@ -1268,7 +1295,10 @@ Ember.View = Ember.CoreView.extend(
     // VIEW-TODO: Unit test this path.
     var childViews = this._childViews;
     for (var i=lengthAfter-1; i>=lengthBefore; i--) {
-      if (childViews[i]) { childViews[i].destroy(); }
+      if (childViews[i]) {
+        childViews[i].removedFromDOM = true;
+        childViews[i].destroy();
+      }
     }
   },
 
@@ -1304,6 +1334,7 @@ Ember.View = Ember.CoreView.extend(
       // Set up an observer on the context. If the property changes, toggle the
       // class name.
       var observer = function() {
+        debugger;
         // Get the current value of the property
         newClass = this._classStringForProperty(binding);
         elem = this.$();
@@ -1342,7 +1373,7 @@ Ember.View = Ember.CoreView.extend(
 
       addObserver(this, parsedPath.path, observer);
 
-      this.one('willClearRender', function() {
+      this.one('willClearOuter', function() {
         removeObserver(this, parsedPath.path, observer);
       });
     }, this);
@@ -1381,7 +1412,7 @@ Ember.View = Ember.CoreView.extend(
 
       addObserver(this, property, observer);
 
-      this.one('willClearRender', function() {
+      this.one('willClearOuter', function() {
         removeObserver(this, property, observer);
       });
 
@@ -1560,6 +1591,8 @@ Ember.View = Ember.CoreView.extend(
   _insertElementLater: function(fn) {
     this._scheduledInsert = Ember.run.scheduleOnce('render', this, '_insertElement', fn);
   },
+
+  _scheduledInsert: null,
 
   /**
    @private
@@ -1746,8 +1779,12 @@ Ember.View = Ember.CoreView.extend(
 
     @method _notifyWillClearRender
   */
-  _notifyWillClearRender: function() {
+  _notifyWillClearRender: function(skipThis) {
+    var self = this;
     this.invokeRecursively(function(view) {
+      if (skipThis && view !== self) {
+        view.trigger('willClearOuter');
+      }
       view.trigger('willClearRender');
     });
   },
