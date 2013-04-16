@@ -266,6 +266,16 @@ Ember.run.end = function() {
   function finalizer() { run.currentRunLoop = run.currentRunLoop.prev(); }
 
   Ember.tryFinally(tryable, finalizer);
+
+  if (!Ember.run.hasScheduledTimers()) {
+    var target, method;
+    for (var i = 0, l = afterAllCallbacks.length; i < l; i++) {
+      target = afterAllCallbacks[i][0];
+      method = afterAllCallbacks[i][1];
+      method.call(target);
+    }
+    afterAllCallbacks = [];
+  }
 };
 
 /**
@@ -656,4 +666,14 @@ Ember.run.next = function() {
 */
 Ember.run.cancel = function(timer) {
   delete timers[timer];
+};
+
+var afterAllCallbacks = [];
+
+Ember.run.afterAll = function(target, method) {
+  if (!method) {
+    method = target;
+    target = null;
+  }
+  afterAllCallbacks.push([target, method]);
 };
