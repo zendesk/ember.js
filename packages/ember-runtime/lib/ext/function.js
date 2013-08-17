@@ -108,5 +108,31 @@ if (Ember.EXTEND_PROTOTYPES) {
     return this;
   };
 
+  /**
+    The `on` extension of Javascript's Function prototype is available
+    when `Ember.EXTEND_PROTOTYPES` or `Ember.EXTEND_PROTOTYPES.Function` is
+    true, which is the default.
+
+    You can listen for events simply by adding the `on` call to the end of
+    your method declarations in classes or mixins that you write. For example:
+
+    ```javascript
+    Ember.Mixin.create({
+      doSomethingWithElement: function() {
+        // Executes whenever the "didInsertElement" event fires
+      }.on('didInsertElement')
+    });
+    ```
+
+    See `Ember.on`.
+
+    @method on
+    @for Function
+  */
+  Function.prototype.on = function() {
+    var events = a_slice.call(arguments);
+    this.__ember_listens__ = events;
+    return this;
+  };
 }
 

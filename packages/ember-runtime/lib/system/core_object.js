@@ -17,7 +17,8 @@ var set = Ember.set, get = Ember.get;
 var o_create = Ember.platform.create,
     o_defineProperty = Ember.platform.defineProperty,
     a_slice = Array.prototype.slice,
-    meta = Ember.meta;
+    meta = Ember.meta,
+    sendEvent = Ember.sendEvent;
 
 function checkForDeprecations(initMixins) {
   var level = Ember.ENV.CREATE_WITH_MIXINS,
@@ -74,6 +75,7 @@ function makeCtor() {
       Ember.Mixin.finishPartial(this);
       init.apply(this, arguments);
     }
+    sendEvent(this, "didInit");
   };
 
   Class.toString = classToString;

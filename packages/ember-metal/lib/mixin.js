@@ -151,16 +151,6 @@ function writableReq(obj) {
   return req;
 }
 
-/** @private */
-function getObserverPaths(value) {
-  return ('function' === typeof value) && value.__ember_observes__;
-}
-
-/** @private */
-function getBeforeObserverPaths(value) {
-  return ('function' === typeof value) && value.__ember_observesBefore__;
-}
-
 var IS_BINDING = Ember.IS_BINDING = /^.+Binding$/;
 
 function detectBinding(obj, key, m) {
@@ -195,6 +185,32 @@ function connectBindings(obj, m) {
         obj[key] = binding;
       }
     }
+  }
+}
+
+function updateObserversAndListeners(obj, key, observerOrListener, pathsKey, updateMethod) {
+  var paths = observerOrListener[pathsKey];
+
+  if (paths) {
+    for (var i=0, l=paths.length; i<l; i++) {
+      Ember[updateMethod](obj, paths[i], null, key);
+    }
+  }
+}
+
+function replaceObserversAndListeners(obj, key, observerOrListener) {
+  var prev = obj[key];
+
+  if ('function' === typeof prev) {
+    updateObserversAndListeners(obj, key, prev, '__ember_observesBefore__', 'removeBeforeObserver');
+    updateObserversAndListeners(obj, key, prev, '__ember_observes__', 'removeObserver');
+    updateObserversAndListeners(obj, key, prev, '__ember_listens__', 'removeListener');
+  }
+
+  if ('function' === typeof observerOrListener) {
+    updateObserversAndListeners(obj, key, observerOrListener, '__ember_observesBefore__', 'addBeforeObserver');
+    updateObserversAndListeners(obj, key, observerOrListener, '__ember_observes__', 'addObserver');
+    updateObserversAndListeners(obj, key, observerOrListener, '__ember_listens__', 'addListener');
   }
 }
 
@@ -251,43 +267,9 @@ function applyMixin(obj, mixins, partial) {
 
       if (willApply) willApply.call(obj, key);
 
-      var observerPaths = getObserverPaths(value),
-          curObserverPaths = observerPaths && getObserverPaths(obj[key]),
-          beforeObserverPaths = getBeforeObserverPaths(value),
-          curBeforeObserverPaths = beforeObserverPaths && getBeforeObserverPaths(obj[key]),
-          len, idx;
-
-      if (curObserverPaths) {
-        len = curObserverPaths.length;
-        for(idx=0;idx<len;idx++) {
-          Ember.removeObserver(obj, curObserverPaths[idx], null, key);
-        }
-      }
-
-      if (curBeforeObserverPaths) {
-        len = curBeforeObserverPaths.length;
-        for(idx=0;idx<len;idx++) {
-          Ember.removeBeforeObserver(obj, curBeforeObserverPaths[idx], null,key);
-        }
-      }
-
+      replaceObserversAndListeners(obj, key, value);
       detectBinding(obj, key, m);
-
       defineProperty(obj, key, desc, value);
-
-      if (observerPaths) {
-        len = observerPaths.length;
-        for(idx=0;idx<len;idx++) {
-          Ember.addObserver(obj, observerPaths[idx], null, key);
-        }
-      }
-
-      if (beforeObserverPaths) {
-        len = beforeObserverPaths.length;
-        for(idx=0;idx<len;idx++) {
-          Ember.addBeforeObserver(obj, beforeObserverPaths[idx], null, key);
-        }
-      }
 
       if (req && req[key]) {
         req = writableReq(obj);
@@ -296,7 +278,6 @@ function applyMixin(obj, mixins, partial) {
       }
 
       if (didApply) didApply.call(obj, key);
-
     }
   }
 
