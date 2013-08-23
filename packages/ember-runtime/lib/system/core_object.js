@@ -75,7 +75,7 @@ function makeCtor() {
       Ember.Mixin.finishPartial(this);
       init.apply(this, arguments);
     }
-    sendEvent(this, "didInit");
+    sendEvent(this, "init");
   };
 
   Class.toString = classToString;
