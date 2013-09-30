@@ -44,6 +44,10 @@ get = function get(obj, keyName) {
     Ember.deprecate("The behavior of `get` has changed in Ember 1.0. It will no longer support keys with periods in them.", !hasDot);
   }
 
+  if (!obj && is10 && Ember.isGlobalPath(keyName)) {
+    obj = window;
+  }
+
   if (!obj) return undefined;
   var ret = obj[keyName];
   if (ret===undefined && 'function'===typeof obj.unknownProperty) {
@@ -54,8 +58,15 @@ get = function get(obj, keyName) {
 
 /** @private */
 set = function set(obj, keyName, value) {
-  var is10 = Ember.ENV.ACCESSORS === LEVEL_10 || Ember.ENV.ACCESSORS === LEVEL_10_WITHOUT_WARNINGS,
-      hasDot = keyName.indexOf('.') !== -1;
+  var is10 = Ember.ENV.ACCESSORS === LEVEL_10 || Ember.ENV.ACCESSORS === LEVEL_10_WITHOUT_WARNINGS;
+
+  if (is10 && value === undefined && 'string' === typeof obj && Ember.isGlobalPath(obj)) {
+    value = keyName;
+    keyName = obj;
+    obj = window;
+  }
+
+  var hasDot = keyName.indexOf('.') !== -1;
 
   if (is10 && hasDot) {
     return setPath(obj, keyName, value);
@@ -83,15 +94,16 @@ if (!USE_ACCESSORS) {
 
   /** @private */
   get = function(obj, keyName) {
+    var is10 = Ember.ENV.ACCESSORS === LEVEL_10 || Ember.ENV.ACCESSORS === LEVEL_10_WITHOUT_WARNINGS;
+
     if (keyName === undefined && 'string' === typeof obj) {
       keyName = obj;
-      obj = Ember;
+      obj = is10 && Ember.isGlobalPath(obj) ? window : Ember;
     }
 
-    Ember.assert("You need to provide an object and key to `get`.", !!obj && keyName);
+    var hasDot = keyName.indexOf('.') !== -1;
 
-    var is10 = Ember.ENV.ACCESSORS === LEVEL_10 || Ember.ENV.ACCESSORS === LEVEL_10_WITHOUT_WARNINGS,
-        hasDot = keyName.indexOf('.') !== -1;
+    Ember.assert("You need to provide an object and key to `get`.", !!obj && keyName);
 
     if (is10 && hasDot) {
       return getPathWithoutDeprecation(obj, keyName);
