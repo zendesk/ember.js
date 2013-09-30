@@ -28,13 +28,14 @@ var LEVEL_09_WITH_WARNINGS    = '0.9-dotted-properties',
 
 /** @private */
 get = function get(obj, keyName) {
+  var is10 = Ember.ENV.ACCESSORS === LEVEL_10 || Ember.ENV.ACCESSORS === LEVEL_10_WITHOUT_WARNINGS;
+
   if (keyName === undefined && 'string' === typeof obj) {
     keyName = obj;
-    obj = Ember;
+    obj = is10 && Ember.isGlobalPath(obj) ? window : Ember;
   }
 
-  var is10 = Ember.ENV.ACCESSORS === LEVEL_10 || Ember.ENV.ACCESSORS === LEVEL_10_WITHOUT_WARNINGS,
-      hasDot = keyName.indexOf('.') !== -1;
+  var hasDot = keyName.indexOf('.') !== -1;
 
   if (is10 && hasDot) {
     return getPathWithoutDeprecation(obj, keyName);
@@ -123,10 +124,17 @@ if (!USE_ACCESSORS) {
 
   /** @private */
   set = function(obj, keyName, value) {
+    var is10 = Ember.ENV.ACCESSORS === LEVEL_10 || Ember.ENV.ACCESSORS === LEVEL_10_WITHOUT_WARNINGS,
+
+    if (is10 && value === undefined && 'string' === typeof obj && Ember.isGlobalPath(obj)) {
+      value = keyName;
+      keyName = obj;
+      obj = window;
+    }
+
     Ember.assert("You need to provide an object and key to `set`.", !!obj && keyName !== undefined);
 
-    var is10 = Ember.ENV.ACCESSORS === LEVEL_10 || Ember.ENV.ACCESSORS === LEVEL_10_WITHOUT_WARNINGS,
-        hasDot = keyName.indexOf('.') !== -1;
+    var hasDot = keyName.indexOf('.') !== -1;
 
     if (is10 && hasDot) {
       return setPath(obj, keyName, value);
