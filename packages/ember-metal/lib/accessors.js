@@ -45,10 +45,6 @@ get = function get(obj, keyName) {
     Ember.deprecate("The behavior of `get` has changed in Ember 1.0. It will no longer support keys with periods in them.", !hasDot);
   }
 
-  if (!obj && is10 && Ember.isGlobalPath(keyName)) {
-    obj = window;
-  }
-
   if (!obj) return undefined;
   var ret = obj[keyName];
   if (ret===undefined && 'function'===typeof obj.unknownProperty) {
@@ -124,7 +120,7 @@ if (!USE_ACCESSORS) {
 
   /** @private */
   set = function(obj, keyName, value) {
-    var is10 = Ember.ENV.ACCESSORS === LEVEL_10 || Ember.ENV.ACCESSORS === LEVEL_10_WITHOUT_WARNINGS,
+    var is10 = Ember.ENV.ACCESSORS === LEVEL_10 || Ember.ENV.ACCESSORS === LEVEL_10_WITHOUT_WARNINGS;
 
     if (is10 && value === undefined && 'string' === typeof obj && Ember.isGlobalPath(obj)) {
       value = keyName;
