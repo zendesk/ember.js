@@ -30,11 +30,13 @@ function checkForDeprecations(initMixins) {
     op("Ember.Object.create no longer supports mixing in other definitions, use createWithMixins instead.", !(currentMixin instanceof Ember.Mixin));
 
     for (var key in currentMixin) {
+      var callee = arguments.callee.caller.toString(),
+          info   = "Class: " + callee + " cp: " + key + '.';
       currentValue = currentMixin[key];
-      op("Ember.Object.create no longer supports defining computed properties.", !(currentValue instanceof Ember.ComputedProperty));
+      op("Ember.Object.create no longer supports defining computed properties. " + info, !(currentValue instanceof Ember.ComputedProperty));
 
       var usesSuper = typeof currentValue === 'function' && currentValue.toString().indexOf('._super') !== -1;
-      op("Ember.Object.create no longer supports defining methods that call _super.", !usesSuper);
+      op("Ember.Object.create no longer supports defining methods that call _super: " + info, !usesSuper);
     }
   }
 }
