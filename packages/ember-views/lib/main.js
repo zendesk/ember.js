@@ -11,3 +11,4 @@ require("ember-runtime");
 require("ember-views/core");
 require("ember-views/system");
 require("ember-views/views");
+require("ember-views/template_context_proxy");

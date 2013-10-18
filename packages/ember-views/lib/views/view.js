@@ -565,7 +565,8 @@ Ember.View = Ember.Object.extend(Ember.Evented,
     var globalSetting = Ember.VIEW_PRESERVES_CONTEXT,
         classPreference = this.constructor.preservesContext,
         preservesContext,
-        parentView;
+        parentView = get(this, '_parentView'),
+        templateContextProxy;
 
     if (globalSetting === true) {
       if (classPreference === false) {
@@ -580,13 +581,18 @@ Ember.View = Ember.Object.extend(Ember.Evented,
     }
 
     if (preservesContext) {
-      parentView = get(this, '_parentView');
+      // Follow  the Ember 1.0.0 strategy
       if (parentView) {
         return get(parentView, '_templateContext');
       }
     }
 
-    return this;
+    templateContextProxy = Ember.TemplateContextProxy.create({
+      parentView: get(this, '_parentView'),
+      view: this
+    });
+
+    return templateContextProxy;
   }).cacheable(),
 
   /**
