@@ -436,6 +436,11 @@ Ember.watch = function(obj, keyName) {
   // activate watching first time
   if (!watching[keyName]) {
     watching[keyName] = 1;
+
+    if ('function' === typeof obj.willWatchProperty) {
+      obj.willWatchProperty(keyName);
+    }
+
     if (isKeyName(keyName)) {
       desc = m.descs[keyName];
       desc = desc ? desc.watched : WATCHED_PROPERTY;
@@ -465,6 +470,11 @@ Ember.unwatch = function(obj, keyName) {
   keyName = normalizePath(keyName);
   if (watching[keyName] === 1) {
     watching[keyName] = 0;
+
+    if ('function' === typeof obj.didUnwatchProperty) {
+      obj.didUnwatchProperty(keyName);
+    }
+
     if (isKeyName(keyName)) {
       desc = meta(obj).descs[keyName];
       desc = desc ? desc.unwatched : SIMPLE_PROPERTY;
