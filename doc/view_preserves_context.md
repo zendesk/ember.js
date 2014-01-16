@@ -2,8 +2,9 @@
 
 In Ember 0.9.7.1, the context for a view's template is the view itself.
 
-In Ember 1.0, it is the parent view's context, which, if you follow it all the
-way up the chain, is usually a controller.
+In Ember 1, it is the view's controllor or, if that doesn't exist, the
+parent view's context, which, if you follow it all the way up the chain,
+is usually a controller.
 
 Ember 0.9.8.1 introduced a global flag, `VIEW_PRESERVES_CONTEXT`, which allows
 application developers to select which behavior they want. Unfortunately, a
@@ -15,6 +16,10 @@ Ember 0.9.9 adds support for view classes to define a class-level
 for the flag, "warn", which will warn for any view that *doesn't* declare that
 it preserves context. If `VIEW_PRESERVES_CONTEXT` is `true`, it cannot be
 overridden.
+
+Ember 0.9.9 also defaults the template context to the view's `controller`,
+if present (and if `VIEW_PRESERVES_CONTEXT` is `"warn"` or `true`), which is
+the behavior of Ember 1.
 
 ## Summary
 

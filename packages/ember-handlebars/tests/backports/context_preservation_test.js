@@ -83,7 +83,15 @@ test("allows views to specify that they preserve context on 'warn' level", funct
   equal(appendView(true).$().text(), "parent view value");
 });
 
-test("preserves context on true level", function() {
+test("checks for a controller on true level", function() {
+  Ember.VIEW_PRESERVES_CONTEXT = true;
+  ContextPreservationTests.ChildView.reopen({
+    controller: { key: 'controller value' }
+  });
+  equal(appendView(undefined).$().text(), 'controller value');
+});
+
+test("falls back to the parent view on true level", function() {
   Ember.VIEW_PRESERVES_CONTEXT = true;
   equal(appendView(undefined).$().text(), 'parent view value');
 });

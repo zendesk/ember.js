@@ -565,7 +565,8 @@ Ember.View = Ember.Object.extend(Ember.Evented,
     var globalSetting = Ember.VIEW_PRESERVES_CONTEXT,
         classPreference = this.constructor.preservesContext,
         preservesContext,
-        parentView;
+        parentView,
+        controller;
 
     if (globalSetting === true) {
       if (classPreference === false) {
@@ -580,10 +581,11 @@ Ember.View = Ember.Object.extend(Ember.Evented,
     }
 
     if (preservesContext) {
+      controller = get(this, 'controller');
+      if (controller) { return controller; }
+
       parentView = get(this, '_parentView');
-      if (parentView) {
-        return get(parentView, '_templateContext');
-      }
+      if (parentView) { return get(parentView, '_templateContext'); }
     }
 
     return this;
