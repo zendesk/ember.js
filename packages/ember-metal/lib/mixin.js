@@ -188,30 +188,28 @@ function connectBindings(obj, m) {
   }
 }
 
-function updateObserversAndListeners(obj, key, observerOrListener, pathsKey, updateMethod) {
-  var paths = observerOrListener[pathsKey];
+function updateObserversAndListeners(obj, key, observerOrListener, pathsKey, updateMethodSuffix) {
+  var prev = obj[key],
+      oldPaths = typeof prev === 'function' && obj[key][pathsKey],
+      newPaths = typeof observerOrListener === 'function' && observerOrListener[pathsKey];
 
-  if (paths) {
-    for (var i=0, l=paths.length; i<l; i++) {
-      Ember[updateMethod](obj, paths[i], null, key);
+  if (newPaths && oldPaths) {
+    for (var i = 0, l = oldPaths.length; i < l; i++) {
+      Ember['remove' + updateMethodSuffix](obj, oldPaths[i], null, key);
+    }
+  }
+
+  if (newPaths) {
+    for (var i = 0, l = newPaths.length; i < l; i++) {
+      Ember['add' + updateMethodSuffix](obj, newPaths[i], null, key);
     }
   }
 }
 
 function replaceObserversAndListeners(obj, key, observerOrListener) {
-  var prev = obj[key];
-
-  if ('function' === typeof prev) {
-    updateObserversAndListeners(obj, key, prev, '__ember_observesBefore__', 'removeBeforeObserver');
-    updateObserversAndListeners(obj, key, prev, '__ember_observes__', 'removeObserver');
-    updateObserversAndListeners(obj, key, prev, '__ember_listens__', 'removeListener');
-  }
-
-  if ('function' === typeof observerOrListener) {
-    updateObserversAndListeners(obj, key, observerOrListener, '__ember_observesBefore__', 'addBeforeObserver');
-    updateObserversAndListeners(obj, key, observerOrListener, '__ember_observes__', 'addObserver');
-    updateObserversAndListeners(obj, key, observerOrListener, '__ember_listens__', 'addListener');
-  }
+  updateObserversAndListeners(obj, key, observerOrListener, '__ember_observesBefore__', 'BeforeObserver');
+  updateObserversAndListeners(obj, key, observerOrListener, '__ember_observes__', 'Observer');
+  updateObserversAndListeners(obj, key, observerOrListener, '__ember_listens__', 'Listener');
 }
 
 /** @private */

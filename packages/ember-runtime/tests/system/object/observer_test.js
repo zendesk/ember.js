@@ -58,6 +58,24 @@ testBoth('observer on subclass', function(get, set) {
 
 });
 
+testBoth('overriding observer on subclass without providing the path', function(get, set) {
+  var subclassFired;
+
+  var MyClass = Ember.Object.extend({
+    foo: Ember.observer(function() {}, 'bar')
+  });
+
+  var Subclass = MyClass.extend({
+    foo: function() {
+      subclassFired = true;
+    }
+  });
+
+  var obj = Subclass.create();
+  set(obj, 'bar', "BAZ");
+  ok(subclassFired, "The subclass's observer fn inherited the parent's path");
+});
+
 testBoth('observer on instance', function(get, set) {
 
   var obj = Ember.Object.create({
