@@ -298,6 +298,7 @@ Ember.wrap = function(func, superFunc) {
   };
 
   newFunc.base = func;
+  newFunc.__ember_listens__ = func.__ember_listens__;
   return newFunc;
 };
 
