@@ -25,6 +25,7 @@ app more and more Ember-1.0-compatible.
  * [Action Helper arguments](doc/action_helper.md#event-argument)
  * [Action Helper via Send](doc/action_helper.md#via-send)
  * [Ember.Object.create](doc/object_create.md)
+ * [Ember.Object#init and #set](doc/set_in_init.md)
  * [Ember.ViewState](doc/view_state.md)
  * [Ember.Evented#fire](doc/evented_fire.md)
  * [Binding transforms](doc/binding_transforms.md)
