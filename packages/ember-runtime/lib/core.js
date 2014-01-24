@@ -119,9 +119,9 @@ Ember.isEmpty = function(obj) {
 };
 
 Ember.empty = function(obj) {
-  Ember.warn('Ember.empty is deprecated. Please use Ember.isEmpty instead.', Ember.ENV.EMBER_EMPTY == null);
+  Ember.warn('Ember.empty is deprecated. Please use Ember.isEmpty instead.', Ember.ENV.EMBER_EMPTY === null || Ember.ENV.EMBER_EMPTY === undefined);
   return Ember.isEmpty(obj);
-}
+};
 
 /**
  This will compare two javascript values of possibly different types.
@@ -304,7 +304,7 @@ Ember.inspect = function(obj) {
 /**
   Compares two objects, returning true if they are logically equal.  This is
   a deeper comparison than a simple triple equal. For sets it will compare the
-  internal objects.  For any other object that implements `isEqual()` it will 
+  internal objects.  For any other object that implements `isEqual()` it will
   respect that method.
 
       Ember.isEqual('hello', 'hello');  => true
