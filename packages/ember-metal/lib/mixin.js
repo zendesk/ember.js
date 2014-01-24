@@ -191,16 +191,17 @@ function connectBindings(obj, m) {
 function updateObserversAndListeners(obj, key, observerOrListener, pathsKey, updateMethodSuffix) {
   var prev = obj[key],
       oldPaths = typeof prev === 'function' && obj[key][pathsKey],
-      newPaths = typeof observerOrListener === 'function' && observerOrListener[pathsKey];
+      newPaths = typeof observerOrListener === 'function' && observerOrListener[pathsKey],
+      i, l;
 
   if (newPaths && oldPaths) {
-    for (var i = 0, l = oldPaths.length; i < l; i++) {
+    for (i = 0, l = oldPaths.length; i < l; i++) {
       Ember['remove' + updateMethodSuffix](obj, oldPaths[i], null, key);
     }
   }
 
   if (newPaths) {
-    for (var i = 0, l = newPaths.length; i < l; i++) {
+    for (i = 0, l = newPaths.length; i < l; i++) {
       Ember['add' + updateMethodSuffix](obj, newPaths[i], null, key);
     }
   }
