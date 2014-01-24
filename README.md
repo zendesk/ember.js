@@ -32,3 +32,4 @@ app more and more Ember-1.0-compatible.
  * [View Preserves Context](doc/view_preserves_context.md)
  * [Volatile Computed Properties](doc/volatile_cps.md)
  * [Lazy Observers](doc/lazy_observers.md)
+ * [Observer Overrides](doc/observer_overrides.md)
