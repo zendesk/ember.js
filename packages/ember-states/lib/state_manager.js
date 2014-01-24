@@ -450,7 +450,7 @@ Ember.StateManager = Ember.State.extend(
     // 3. Map provided path to context objects and send
     //    appropriate setupControllers events
 
-    if (Ember.empty(name)) { return; }
+    if (Ember.isEmpty(name)) { return; }
 
     var segments;
 
