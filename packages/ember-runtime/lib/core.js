@@ -114,9 +114,14 @@ Ember.none = function(obj) {
   @param {Object} obj Value to test
   @returns {Boolean}
 */
-Ember.empty = function(obj) {
+Ember.isEmpty = function(obj) {
   return obj === null || obj === undefined || (obj.length === 0 && typeof obj !== 'function');
 };
+
+Ember.empty = function(obj) {
+  Ember.warn('Ember.empty is deprecated. Please use Ember.isEmpty instead.', Ember.ENV.EMBER_EMPTY == null);
+  return Ember.isEmpty(obj);
+}
 
 /**
  This will compare two javascript values of possibly different types.
