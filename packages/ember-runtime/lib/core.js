@@ -103,13 +103,13 @@ Ember.none = function(obj) {
   Constrains the rules on `Ember.none` by returning false for empty
   string and empty arrays.
 
-      Ember.empty();               => true
-      Ember.empty(null);           => true
-      Ember.empty(undefined);      => true
-      Ember.empty('');             => true
-      Ember.empty([]);             => true
-      Ember.empty('tobias fünke'); => false
-      Ember.empty([0,1,2]);        => false
+      Ember.isEmpty();               => true
+      Ember.isEmpty(null);           => true
+      Ember.isEmpty(undefined);      => true
+      Ember.isEmpty('');             => true
+      Ember.isEmpty([]);             => true
+      Ember.isEmpty('tobias fünke'); => false
+      Ember.isEmpty([0,1,2]);        => false
 
   @param {Object} obj Value to test
   @returns {Boolean}

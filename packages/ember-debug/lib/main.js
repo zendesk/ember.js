@@ -24,7 +24,7 @@ if ('undefined' === typeof Ember) {
       // any other return value (including void) will pass.
       Ember.assert('a passed record must have a firstName', function() {
         if (obj instanceof Ember.Record) {
-          return !Ember.empty(obj.firstName);
+          return !Ember.isEmpty(obj.firstName);
         }
       });
 
