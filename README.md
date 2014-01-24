@@ -28,6 +28,7 @@ app more and more Ember-1.0-compatible.
  * [Ember.Object#init and #set](doc/set_in_init.md)
  * [Ember.ViewState](doc/view_state.md)
  * [Ember.Evented#fire](doc/evented_fire.md)
+ * [Ember.run.scheduleOnce](doc/schedule_once.md)
  * [Binding transforms](doc/binding_transforms.md)
  * [View Preserves Context](doc/view_preserves_context.md)
  * [Volatile Computed Properties](doc/volatile_cps.md)
