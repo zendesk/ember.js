@@ -6,8 +6,11 @@
 // ==========================================================================
 
 require('ember-views/views/view');
-var get = Ember.get, set = Ember.set, meta = Ember.meta;
-var forEach = Ember.ArrayUtils.forEach;
+var get = Ember.get,
+    getPath = Ember.getPathWithoutDeprecation,
+    set = Ember.set,
+    meta = Ember.meta,
+    forEach = Ember.ArrayUtils.forEach;
 
 var childViewsProperty = Ember.computed(function() {
   return get(this, '_childViews');
@@ -205,7 +208,7 @@ var childViewsProperty = Ember.computed(function() {
   @extends Ember.View
 */
 
-Ember.ContainerView = Ember.View.extend({
+Ember.ContainerView = Ember.View.extend(Ember.MutableArray, {
 
   init: function() {
     var childViews = get(this, 'childViews');
@@ -266,6 +269,22 @@ Ember.ContainerView = Ember.View.extend({
     });
 
     this._super();
+  },
+
+  // Act as a proxy for its childViews:
+  length: Ember.computed(function() {
+    return getPath(this, 'childViews.length');
+  }).property('childViews.lengt').cacheable(),
+
+  objectAt: function(idx) {
+    var childViews = get(this, 'childViews');
+    if (childViews === null || childViews === undefined) { return undefined; }
+    return childViews.objectAt(idx);
+  },
+
+  replace: function() {
+    var array = this.get('childViews');
+    return array.replace.apply(array, arguments);
   },
 
   /**
