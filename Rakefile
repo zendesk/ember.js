@@ -1,4 +1,8 @@
-abort "Please use Ruby 1.9 to build Ember.js!" if RUBY_VERSION !~ /^1\.9/
+
+if Gem::Version.new(RUBY_VERSION.dup) < Gem::Version.new("1.9")
+  abort "Please use Ruby 1.9 to build Ember.js!"
+end
+
 
 require "bundler/setup"
 require "erb"

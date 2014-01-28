@@ -34,3 +34,11 @@ app more and more Ember-1.0-compatible.
  * [Volatile Computed Properties](doc/volatile_cps.md)
  * [Lazy Observers](doc/lazy_observers.md)
  * [Observer Overrides](doc/observer_overrides.md)
+
+## Testing
+
+To run the entire test suite:
+
+    gem install bundler
+    bundle install
+    bundle exec rake "test[all]"
