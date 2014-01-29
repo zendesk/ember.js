@@ -8,7 +8,7 @@ someContainerView
   .pushObject(SomeChildView.create());
 ```
 
-In Ember 1, mutating `childViews` from the outside is deprecated. Insted,
+In Ember 1, mutating `childViews` from the outside is deprecated. Instead,
 the `ContainerView` itself acts like an array:
 
 ```js
