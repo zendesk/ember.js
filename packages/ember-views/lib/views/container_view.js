@@ -274,7 +274,7 @@ Ember.ContainerView = Ember.View.extend(Ember.MutableArray, {
   // Act as a proxy for its childViews:
   length: Ember.computed(function() {
     return getPath(this, 'childViews.length');
-  }).property('childViews.lengt').cacheable(),
+  }).property('childViews.length').cacheable(),
 
   objectAt: function(idx) {
     var childViews = get(this, 'childViews');

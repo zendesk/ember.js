@@ -26,4 +26,5 @@ test("supports pushing children directly", function() {
     isAnotherChild: true
   }));
   equal(getPath(container, 'childViews.length'), 2);
+  equal(getPath(container, 'length'), 2);
 });
