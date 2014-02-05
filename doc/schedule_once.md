@@ -15,3 +15,5 @@ var MyView = Ember.View.extend({
   }
 });
 ```
+
+This is preferred over `Em.run.once` or even `Em.run.next`, if your intent is to manipulate the DOM representation of a view.
