@@ -682,6 +682,18 @@ Ember.View = Ember.Object.extend(Ember.Evented,
     }
   },
 
+  nearestOfType: function(klass) {
+    var view = get(this, 'parentView'),
+        isOfType = klass instanceof Ember.Mixin ?
+                   function(view) { return klass.detect(view); } :
+                   function(view) { return klass.detect(view.constructor); };
+
+    while (view) {
+      if (isOfType(view)) { return view; }
+      view = get(view, 'parentView');
+    }
+  },
+
   /**
     Return the nearest ancestor that has a given property.
 
