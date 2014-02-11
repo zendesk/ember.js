@@ -34,6 +34,7 @@ app more and more Ember-1.0-compatible.
  * [Volatile Computed Properties](doc/volatile_cps.md)
  * [Lazy Observers](doc/lazy_observers.md)
  * [Observer Overrides](doc/observer_overrides.md)
+ * [nearestOfType](doc/nearest_of_type.md)
 
 ## Testing
 
